@@ -36,7 +36,7 @@ You can see all the examples [live here]:
 
 Use the `wrappedClass` prop to add a css class when flex content is wrapped (no longer fits in a single row)
 
-![Basic usage demo gif](/public/images/basic-usage.gif)
+![Basic usage demo gif](/public/images/BasicExample.gif)
 
 ```jsx
 <FluidFlexbox className="gap-2" wrappedClass="flex-col">
