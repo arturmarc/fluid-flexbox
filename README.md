@@ -36,6 +36,8 @@ You can see all the examples [live here]:
 
 Use the `wrappedClass` prop to add a css class when flex content is wrapped (no longer fits in a single row)
 
+![Basic usage demo gif](/public/images/basic-usage.gif)
+
 ```jsx
 <FluidFlexbox className="gap-2" wrappedClass="flex-col">
   <Button>First</Button>
@@ -45,8 +47,6 @@ Use the `wrappedClass` prop to add a css class when flex content is wrapped (no 
 ```
 
 (All examples are using [tailwind css utility classes](), if you are not familiar it's functionally vary similar to using inline styles. For example `flex-col` is equivalent style="flex-direction: column" applied using a class)
-
-[gif]
 
 Showcases probably most useful simple usage. Changes the layout of a toolbar when buttons no longer fit in a single row and renders then in a column instead.
 
