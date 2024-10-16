@@ -1,4 +1,4 @@
-import { FluidFlexbox } from "../react/FluidFlexbox";
+import { FluidFlexbox } from "../../react/FluidFlexbox";
 import { Button, UsageTitle, UsageWrapper } from "./UsageList";
 
 export function SimpleUsage() {

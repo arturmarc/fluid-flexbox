@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
-import { FluidFlexbox } from "../react/FluidFlexbox";
+import { FluidFlexbox } from "../../react/FluidFlexbox";
 import { Button, UsageTitle, UsageWrapper } from "./UsageList";
-import { FlexWrapDetectorElement } from "../dom/FlexWrapDetectorElement";
+import { FlexWrapDetectorElement } from "../../dom/FlexWrapDetectorElement";
 
 export function CESimpleUsage() {
   return (
