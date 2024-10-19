@@ -52,15 +52,18 @@ Use the `wrappedClass` prop to add a css class when flex content is wrapped (no 
 </FluidFlexbox>
 ```
 
-(All examples are using [tailwind css utility classes](), if you are not familiar it's functionally vary similar to using inline styles. For example `flex-col` is equivalent style="flex-direction: column" applied using a class)
+This example showcases probably a most useful simple usage. Changes the layout of a toolbar when buttons no longer fit in a single row and renders then in a column instead.
 
-Showcases probably most useful simple usage. Changes the layout of a toolbar when buttons no longer fit in a single row and renders then in a column instead.
+> note: all examples are using [tailwind css utility classes](), if you are not familiar, it's functionally very similar to using inline styles. For example `flex-col` is equivalent to `style="flex-direction: column"`, just applied using an utility class
 
 ## Adapting content
 
-[gif]
+<img src="/public/images/AdaptingContentExample.gif" height="16rem" />
 
-Using render prop
+Not just styling, but also content can be easily adapted using render prop:
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)]
+(https://stackblitz.com/~/github.com/arturmarc/fluid-flexbox?file=src/usage/examples/AdaptingContentExample.tsx)
 
 ```jsx
 <FluidFlexbox className="gap-2">
@@ -74,7 +77,7 @@ Using render prop
 </FluidFlexbox>
 ```
 
-using the `useFluidFlexboxWrapped` hook
+, or using the `useFluidFlexboxWrapped` hook:
 
 ```jsx
 import { FluidFlexbox, useFluidFlexboxWrapped } from "fluid-flexbox";
