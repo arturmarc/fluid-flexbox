@@ -36,7 +36,7 @@ Can be used with any js framework or as a standalone custom element: `<flex-wrap
 
 Use the `wrappedClass` prop to add a css class when flex content is wrapped (no longer fits in a single row)
 
-<img src="/public/images/BasicExample.gif" style="height: 16rem" alt="Basic usage demo gif" />
+<img src="/public/images/BasicExample.gif" style="height: 12rem" alt="Basic usage demo gif" />
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/~/github.com/arturmarc/fluid-flexbox?file=src/usage/examples/BasicUsageExample.tsx)
 
@@ -54,7 +54,7 @@ This example showcases probably a most useful simple usage. Changes the layout o
 
 ## Adapting content
 
-<img src="/public/images/AdaptingContentExample.gif" style="height: 16rem" alt="Adapting content demo gif" />
+<img src="/public/images/AdaptingContentExample.gif" style="height: 12rem" alt="Adapting content demo gif" />
 
 Not just styling, but also content can be easily adapted using render prop:
 
@@ -102,7 +102,9 @@ function Toolbar() {
 Two levels of nesting. \
 In this example there is also a nested flex container and growing content.
 
-[gif]
+<img src="/public/images/AdaptingContentExample.gif" style="height: 12rem" alt="Two levels of nesting demo gif" />
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/~/github.com/arturmarc/fluid-flexbox?file=src/usage/examples/NestedExample.tsx)
 
 ```jsx
 <FluidFlexbox
@@ -133,9 +135,12 @@ In this example there is also a nested flex container and growing content.
 </FluidFlexbox>
 ```
 
-Conditionally nested
+Conditionally nested - if the widest content is wrapped, checks if the narrower version is wrapped to enable
+eventually rendering the narrower version.
 
-[gif]
+<img src="/public/images/ConditionallyNestedExample.gif" style="height: 8rem" alt="Conditionally nested demo gif" />
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/~/github.com/arturmarc/fluid-flexbox?file=src/usage/examples/ConditionallyNestedExample.tsx)
 
 ```jsx
 const contentWhenWidest = (
@@ -167,13 +172,13 @@ const narrowestContent = (
 );
 return (
   <FluidFlexbox className="gap-2" containerClassName="overflow-hidden">
-    {(isOverflowing) =>
-      !isOverflowing ? (
+    {(isWidestWrapped) =>
+      !isWidestWrapped ? (
         contentWhenWidest
       ) : (
         <FluidFlexbox className="gap-2" wrappedClass="gap-1">
-          {(narrowerIsOverflowing) =>
-            !narrowerIsOverflowing ? contentWhenNarrower : narrowestContent
+          {(isNarrowerWrapped) =>
+            !isNarrowerWrapped ? contentWhenNarrower : narrowestContent
           }
         </FluidFlexbox>
       )
@@ -182,24 +187,26 @@ return (
 );
 ```
 
-Deep nesting - changing elements one by one
+Deep nesting - changing elements one by one, to replace them text labels with icons.
 
-[gif]
+<img src="/public/images/DeepNestingExample.gif" style="height: 8rem" alt="Deep nesting demo gif" />
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/~/github.com/arturmarc/fluid-flexbox?file=src/usage/examples/DeepNestingExample.tsx)
 
 ```jsx
 <FluidFlexbox className="gap-2">
-  {(isOverflowing) => (
+  {(outerIsWrapped) => (
     <>
-      <Button> {isOverflowing ? <XIcon size="20" /> : "Close"}</Button>
+      <Button> {outerIsWrapped ? <XIcon size="20" /> : "Close"}</Button>
       <FluidFlexbox className="gap-2">
-        {(isOverflowing) => (
+        {(innerIsWrapped) => (
           <>
-            <Button> {isOverflowing ? <PlusIcon size="20" /> : "New"}</Button>
+            <Button> {innerIsWrapped ? <PlusIcon size="20" /> : "New"}</Button>
             <FluidFlexbox>
-              {(isOverflowing) => (
+              {(innermostIsWrapped) => (
                 <>
                   <Button>
-                    {isOverflowing ? <TrashIcon size="20" /> : "Delete"}
+                    {innermostIsWrapped ? <TrashIcon size="20" /> : "Delete"}
                   </Button>
                   <div className="h-[1px]"></div>
                 </>
@@ -215,9 +222,11 @@ Deep nesting - changing elements one by one
 
 ## Single child
 
-Can also be used to detect if a single element is overflowing using this trick
+Can also be used to detect if a single element is overflowing it's container using this trick:
 
-[gif]
+<img src="/public/images/SingleChildExample.gif" style="height: 8rem" alt="Single child demo gif" />
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/~/github.com/arturmarc/fluid-flexbox?file=src/usage/examples/SingleChildExample.tsx)
 
 ```jsx
 <FluidFlexbox>
