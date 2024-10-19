@@ -102,7 +102,7 @@ function Toolbar() {
 Two levels of nesting. \
 In this example there is also a nested flex container and growing content.
 
-<img src="/public/images/AdaptingContentExample.gif" style="height: 12rem" alt="Two levels of nesting demo gif" />
+<img src="/public/images/NestedExample.gif" style="height: 12rem" alt="Two levels of nesting demo gif" />
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/~/github.com/arturmarc/fluid-flexbox?file=src/usage/examples/NestedExample.tsx)
 
