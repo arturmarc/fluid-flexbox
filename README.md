@@ -30,19 +30,15 @@ Can be used with any js framework or as a standalone custom element: `<flex-wrap
 
 ### Checkout the live demo:
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)]
-(https://stackblitz.com/~/github.com/arturmarc/fluid-flexbox?file=src/usage/examples/BasicUsageExample.tsx)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/~/github.com/arturmarc/fluid-flexbox?file=src/usage/examples/BasicUsageExample.tsx)
 
 ## Basic usage
 
 Use the `wrappedClass` prop to add a css class when flex content is wrapped (no longer fits in a single row)
 
-![Basic usage demo gif](/public/images/BasicExample.gif)
+<img src="/public/images/BasicExample.gif" style="height: 16rem" alt="Basic usage demo gif" />
 
-<img src="/public/images/BasicExample.gif" height="16rem" />
-
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)]
-(https://stackblitz.com/~/github.com/arturmarc/fluid-flexbox?file=src/usage/examples/BasicUsageExample.tsx)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/~/github.com/arturmarc/fluid-flexbox?file=src/usage/examples/BasicUsageExample.tsx)
 
 ```jsx
 <FluidFlexbox className="gap-2" wrappedClass="flex-col">
@@ -58,12 +54,11 @@ This example showcases probably a most useful simple usage. Changes the layout o
 
 ## Adapting content
 
-<img src="/public/images/AdaptingContentExample.gif" height="16rem" />
+<img src="/public/images/AdaptingContentExample.gif" style="height: 16rem" alt="Adapting content demo gif" />
 
 Not just styling, but also content can be easily adapted using render prop:
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)]
-(https://stackblitz.com/~/github.com/arturmarc/fluid-flexbox?file=src/usage/examples/AdaptingContentExample.tsx)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/~/github.com/arturmarc/fluid-flexbox?file=src/usage/examples/AdaptingContentExample.tsx)
 
 ```jsx
 <FluidFlexbox className="gap-2">
