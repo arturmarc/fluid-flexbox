@@ -28,15 +28,21 @@ Can be used with any js framework or as a standalone custom element: `<flex-wrap
 
 # <FluidFlexbox />
 
-[StackBlitz demo with all examples](https://stackblitz.com/edit/vitejs-vite-2y3c3k?file=src%2Fusage%2Fexamples%2FAdaptingContentExample.tsx)
+### Checkout the live demo:
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)]
+(https://stackblitz.com/~/github.com/arturmarc/fluid-flexbox?file=src/usage/examples/BasicUsageExample.tsx)
 
 ## Basic usage
-
-You can see all the examples [live here]:
 
 Use the `wrappedClass` prop to add a css class when flex content is wrapped (no longer fits in a single row)
 
 ![Basic usage demo gif](/public/images/BasicExample.gif)
+
+<img src="/public/images/BasicExample.gif" height="16rem" />
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)]
+(https://stackblitz.com/~/github.com/arturmarc/fluid-flexbox?file=src/usage/examples/BasicUsageExample.tsx)
 
 ```jsx
 <FluidFlexbox className="gap-2" wrappedClass="flex-col">
