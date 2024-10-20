@@ -10,9 +10,9 @@ Powerful responsive layout tool that enables responsive styling not based on pix
 - uses css flexbox model and extends it
 - entirely dynamic (no calculations involved) adapts to any change in content, parent css etc..
 - can be nested (deeply if needed) to create complex responsive rules
-- not just styling, but also content can be easily adapted using render prop or the `useFluidFlexboxWrapped` hook
+- not just styling, but also content can be easily adapted using a render prop or the `useFluidFlexboxWrapped` hook
 - resilient to infinite render loops
-- works with any css framework (tailwind, bootstrap, etc) or inline styes
+- works with any css framework (tailwind, bootstrap, etc) or inline styles
 
 and ...
 
@@ -48,9 +48,9 @@ Use the `wrappedClass` prop to add a css class when flex content is wrapped (no 
 </FluidFlexbox>
 ```
 
-This example showcases probably a most useful simple usage. Changes the layout of a toolbar when buttons no longer fit in a single row and renders then in a column instead.
+This example showcases a simple but useful use case. Changes the layout of a toolbar when buttons no longer fit in a single row and renders then in a column instead.
 
-> note: all examples are using [tailwind css utility classes](), if you are not familiar, it's functionally very similar to using inline styles. For example `flex-col` is equivalent to `style="flex-direction: column"`, just applied using an utility class
+> note: all examples are using [tailwind css utility classes](), If you're unfamiliar, Tailwind functions similarly to inline styles. For example `flex-col` is equivalent to `style="flex-direction: column"`, just applied using an utility class
 
 ## Adapting content
 
@@ -100,7 +100,8 @@ function Toolbar() {
 ## Nesting
 
 Two levels of nesting. \
-In this example there is also a nested flex container and growing content.
+This example example demonstrates how fluid flexboxes can be nested. \
+It also showcases fluid flexbox being able to grow by using `containerClassName="flex-grow"`.
 
 <img src="/public/images/NestedExample.gif" style="height: 12rem" alt="Two levels of nesting demo gif" />
 
@@ -187,7 +188,8 @@ return (
 );
 ```
 
-Deep nesting - changing elements one by one, to replace them text labels with icons.
+Deep nesting:\
+This example demonstrates how elements can be changed one by one to replace text labels with icons.
 
 <img src="/public/images/DeepNestingExample.gif" style="height: 8rem" alt="Deep nesting demo gif" />
 
@@ -239,14 +241,17 @@ Can also be used to detect if a single element is overflowing it's container usi
 </FluidFlexbox>
 ```
 
+(..TODO advanced consideration: inside a flex container, and infinite loop)
+
 ## Additional props
 
 - `wrappedClass` - css class to add when flex content is wrapped
 - `wrappedStyle` - css style to add when flex content is wrapped
-- `throttleTime` - throttles the detection of overflowing content. Default is no throttling
-- `hidden` - convenience prop to hide the element (applying `display: none` tot the FluidFlexbox component does not work)
 - `containerClassName` - css class to add to the container element (the flexbox element is wrapped in a div that you might want to style using this prop)
+- `throttleTime` - throttles the detection of overflowing content. Default is no throttling
+- `hidden` - convenience prop to hide the element (applying `display: none` to the FluidFlexbox component does not work)
 - (TODO) `removeClassWhenWrapped` - when set tot true `wrappedClass` replaces the `className` prop instead of adding to it. Default is false
+- (TODO) `catainerStyle` - css style to add to the container element (the flexbox element is wrapped in a div that you might want to style using this prop)
 
 # How it works and important considerations
 
@@ -260,6 +265,6 @@ It's probably at it's best when used for toolbars, menus or content blocks.
 
 They are basically identical copies of the flex container with differing values of the `flex-wrap` property.
 Then a [ResizeObserver](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver/ResizeObserver)
-(use-resize-observer) is used to trigger measurements that determine whether the flex-items wrap or not.
-The clones are rending the _original_ not wrapped version of the content (`isWrapped = false`) and the `wrappedClass` not added.
-That way `FluidFlexbox` can know if the original content would fit again when the alternative version is rendered (isWrapped = true).
+[use-resize-observer](https://github.com/ZeeCoder/use-resize-observer) is used to trigger measurements that determine whether the flex-items wrap or not.
+The clones are rendering the _original_, not wrapped version of the content (`isWrapped = false`) and the `wrappedClass` not added.
+That way `FluidFlexbox` can know if the original content would fit again when the alternative version is rendered (`isWrapped = true`).
