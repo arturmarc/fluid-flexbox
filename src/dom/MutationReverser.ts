@@ -2,7 +2,7 @@
  * TODO test and use this
  * A utility class that tracks and reverses DOM mutations.
  */
-class MutationReverser {
+export class MutationReverser {
   constructor(targetNode: HTMLElement) {
     this.targetNode = targetNode;
     this.mutations = [];

@@ -1,25 +1,69 @@
 {
   "name": "fluid-flexbox",
-  "private": true,
-  "version": "0.0.0",
+  "private": false,
+  "version": "0.1",
   "type": "module",
+  "repository": "git@github.com:arturmarc/fluid-flexbox.git",
+  "description": "A \"flex-wrap on steroids\" component and custom element that detects when it's flex children no longer fit in a single row.",
+  "author": "Artur Marczyk <artur.marczyk@gmail.com>",
+  "keywords": [
+    "react",
+    "react-component",
+    "flex",
+    "flexbox",
+    "css",
+    "tailwind",
+    "utility",
+    "responsive",
+    "fluid",
+    "layout",
+    "wrap",
+    "fit",
+    "detect",
+    "overflow",
+    "collapsed",
+    "vanilla-js"
+  ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc --project tsconfig.build.json && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
+  "files": [
+    "dist",
+    "src/dom/FlexWrapDetectorElement.ts",
+    "src/lib/utils.ts",
+    "src/react/FluidFlexbox.tsx"
+  ],
+  "main": "./dist/fluid-flexbox.cjs.js",
+  "module": "./dist/fluid-flexbox.es.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/fluid-flexbox.es.js",
+      "require": "./dist/fluid-flexbox.cjs.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./flex-wrap-detector": {
+      "import": "./dist/flex-wrap-detector.es.js",
+      "require": "./dist/flex-wrap-detector.cjs.js",
+      "types": "./dist/types/index.d.ts"
+    }
+  },
   "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "16.8.0 - 18",
+    "react-dom": "16.8.0 - 18"
   },
   "dependencies": {
-    "@radix-ui/react-dropdown-menu": "^2.1.2",
-    "@radix-ui/react-select": "^2.1.2",
-    "@radix-ui/react-slot": "^1.1.0",
     "use-resize-observer": "^9.1.0"
   },
   "devDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@radix-ui/react-dropdown-menu": "^2.1.2",
+    "@radix-ui/react-select": "^2.1.2",
+    "@radix-ui/react-slot": "^1.1.0",
     "@types/node": "^22.7.7",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",

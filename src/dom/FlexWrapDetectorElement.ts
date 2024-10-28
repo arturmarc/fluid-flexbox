@@ -57,8 +57,6 @@ export class FlexWrapDetectorElement extends HTMLElement {
   // slightly different handling in needed in that case
   firstSlotChange = true;
 
-  mutationReverser: MutationReverser | null = null;
-
   constructor() {
     super();
     const shadowRoot = this.attachShadow({ mode: "open" });

@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/index.ts"],
+  "compilerOptions": {
+    "declaration": true, // Generates .d.ts files
+    "declarationDir": "./dist", // Where to put the .d.ts files
+    "emitDeclarationOnly": true, // Only emit .d.ts files (no JS files)
+    "noEmit": false
+  }
+}
