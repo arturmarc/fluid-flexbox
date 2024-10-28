@@ -268,3 +268,8 @@ Then a [ResizeObserver](https://developer.mozilla.org/en-US/docs/Web/API/ResizeO
 [use-resize-observer](https://github.com/ZeeCoder/use-resize-observer) is used to trigger measurements that determine whether the flex-items wrap or not.
 The clones are rendering the _original_, not wrapped version of the content (`isWrapped = false`) and the `wrappedClass` not added.
 That way `FluidFlexbox` can know if the original content would fit again when the alternative version is rendered (`isWrapped = true`).
+
+### Infinite loops
+
+If the alternative styling or content when <FluidFlexbox> is wrapped is actually making it _grow_ to fit the original non wrapped content again, it is possible to get into an infinite loop. There is a built in protection against this, but there will it will cause a multiple re-renders and flashed. The protection is timing based so depending on how fast the re-rendering is it might not trigger.
+Take care to adjust your wrapped styling and content to not cause that infinite loop. It's usually a mistake anyway since the whole point it to adjust your content and styling to fit better when original content is wrapped.

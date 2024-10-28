@@ -1,5 +1,5 @@
 import { ChevronsUpDownIcon } from "lucide-react";
-import { ReactElement, useMemo, useState } from "react";
+import { ReactElement, useEffect, useMemo, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,11 +14,21 @@ import { AdaptingContentExample } from "./examples/AdaptingContentExample";
 import { ConditionallyNestedExample } from "./examples/ConditionallyNestedExample";
 import { DeepNestingExample } from "./examples/DeepNestingExample";
 import { SingleChildExample } from "./examples/SingleChildExample";
+import { OrderAndReverse } from "./examples/OrderAndReverse";
+import { InfiniteLoop } from "./examples/InfiniteLoop";
+import { AllPropsShowcaseExample } from "./examples/AllPropsShowcaseExample";
 
 export function ExampleSelector() {
   const [example, setExample] = useState("Basic Usage");
 
-  const examples: Map<string, ReactElement> = useMemo(
+  const [showTests, setShowAll] = useState(false);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    setShowAll(searchParams.has("tests"));
+  }, []);
+
+  const demoExamples: Map<string, ReactElement> = useMemo(
     () =>
       new Map([
         ["Basic Usage", <BasicUsageExample />],
@@ -27,9 +37,22 @@ export function ExampleSelector() {
         ["Conditionally nested", <ConditionallyNestedExample />],
         ["Deep nesting", <DeepNestingExample />],
         ["Single child", <SingleChildExample />],
+        ["Showcase other props usage", <AllPropsShowcaseExample />],
       ]),
     [],
   );
+
+  const testExamples = useMemo(
+    () =>
+      new Map([
+        ...demoExamples.entries(),
+        ["Order and reverse", <OrderAndReverse />],
+        ["Infinite Loop", <InfiniteLoop />],
+      ]),
+    [],
+  );
+
+  const examples = showTests ? testExamples : demoExamples;
 
   return (
     <>
