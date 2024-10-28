@@ -19,7 +19,7 @@ export interface FluidFlexboxProps
   children?: React.ReactNode | ((wrapped: boolean) => ReactNode);
   wrappedClass?: string;
   wrappedStyle?: React.CSSProperties;
-  // removeClassWhenWrapped?: boolean; // todo implement this "mode" to fully override class when wrapped
+  removeClassWhenWrapped?: boolean;
   hidden?: boolean;
   containerClassName?: string;
   containerStyle?: React.CSSProperties;
@@ -48,6 +48,7 @@ export function FluidFlexbox({
   containerClassName,
   containerStyle,
   hidden,
+  removeClassWhenWrapped,
   ...rest
 }: FluidFlexboxProps) {
   const [isWrappedState, setIsWrapped] = useState(false);
@@ -104,22 +105,29 @@ export function FluidFlexbox({
   const wrappingCopyRef = useRef<HTMLDivElement | null>(null);
 
   const checkIfWrapping = useCallback(() => {
-    if (nonWrappingElHeight.current === wrappingElHeight.current) {
-      const lastChildNonWrapping = notWrappingCopyRef.current
-        ?.lastElementChild as HTMLElement;
-      const lastChildWrapping = wrappingCopyRef.current
-        ?.lastElementChild as HTMLElement;
-      // TODO ? for row-reverse it's the other way around
-      // if the direction is row-reverse or the last child is not one with the
-      // greatest 'order' value
-      if (lastChildNonWrapping && lastChildWrapping) {
-        setIsWrapped(
-          lastChildNonWrapping.offsetTop !== lastChildWrapping.offsetTop,
-        );
+    if (
+      nonWrappingElHeight.current === wrappingElHeight.current &&
+      notWrappingCopyRef.current &&
+      wrappingCopyRef.current
+    ) {
+      const childCount = notWrappingCopyRef.current.childElementCount;
+      // go in reverse order for a slight optimization
+      for (let childIdx = childCount - 1; childIdx >= 0; childIdx -= 1) {
+        const nonWrappingChild = notWrappingCopyRef.current.children[
+          childIdx
+        ] as HTMLElement;
+        const wrappingChild = wrappingCopyRef.current.children[
+          childIdx
+        ] as HTMLElement;
+        if (nonWrappingChild.offsetTop !== wrappingChild.offsetTop) {
+          setIsWrapped(true);
+          return;
+        }
       }
-    } else {
-      setIsWrapped(nonWrappingElHeight.current !== wrappingElHeight.current);
+      setIsWrapped(false);
     }
+
+    setIsWrapped(nonWrappingElHeight.current !== wrappingElHeight.current);
   }, []);
 
   // inject global styles for styling children
@@ -146,11 +154,11 @@ export function FluidFlexbox({
 
   // infinite loop prevention
   // lock down changes if re-rendered more
-  // than 10 times in 200ms
+  // than 7 times in 300ms
   const renderCountRef = useRef(0);
   const lastResetTimeRef = useRef(Date.now());
-  const timeWindow = 200;
-  const threshold = 10;
+  const timeWindow = 300;
+  const threshold = 7;
   useEffect(() => {
     const now = Date.now();
     if (now - lastResetTimeRef.current > timeWindow) {
@@ -159,12 +167,10 @@ export function FluidFlexbox({
       setLocked(false);
     } else {
       renderCountRef.current += 1;
-      console.log(
-        "render count",
-        renderCountRef.current,
-        now - lastResetTimeRef.current,
-      );
       if (renderCountRef.current > threshold) {
+        console.warn(
+          "FluidFlexbox infinite loop detected. This is likely not what you want. More details: https://github.com/arturmarc/fluid-flexbox#infinite-loops",
+        );
         setLocked(true);
         setIsWrapped(true);
       }
@@ -181,16 +187,15 @@ export function FluidFlexbox({
     visibility: "hidden" as const,
   };
 
-  let computedClassName = className;
+  let computedClassName = isWrapped && removeClassWhenWrapped ? "" : className;
   if (wrappedClass && isWrapped) {
-    computedClassName = `${className || ""} ${wrappedClass}`.trim();
+    computedClassName = `${computedClassName} ${wrappedClass}`.trim();
   }
 
   // just to make sure some inherited styles are not applied
   const styleSizeReset = {
     padding: 0,
     margin: 0,
-    border: 0,
   };
 
   return (
@@ -268,17 +273,19 @@ export function FluidFlexbox({
         data-fluid-flexbox={`visible-${isWrapped ? "wrapped" : "not-wrapped"}`}
         style={{
           gridArea: "1/1",
-          // this is needed to allow the visible to shrink below it's content size
-          // could be solved by allowing wrapping but that creates a faus (see blow)
-          // or it could be solved by overflow: "hidden",
-          // this way is better tough, because user's might want the content
-          // too bleed out of the container and overflow: "hidden" would prevent that
           ...(!isWrapped
             ? {
+                // this is needed to allow the visible to shrink below it's content size
+                // could be solved by allowing wrapping but that creates a fauc (see blow)
+                // or it could be solved by overflow: "hidden",
+                // this way is better tough, because user's might want the content
+                // too bleed out of the container and overflow: "hidden" would prevent that
                 position: "absolute",
                 inset: 0,
               }
-            : {}),
+            : // rule below allows the visible to shrink below it's content size
+              // to be able to for example set text-overflow: ellipsis on one of the children
+              { minWidth: 0 }),
           ...styleSizeReset,
         }}
       >
@@ -290,7 +297,7 @@ export function FluidFlexbox({
             ...baseStyle,
             // needed to prevent fouc
             // don't wrap because it will wrap first and only then
-            // react will render the content and/or class to apply when wrapped
+            // React will render the content and/or class to apply when wrapped
             // which often might results in a small jump in the content size
             ...(isWrapped ? {} : { flexWrap: "nowrap" }),
           }}
