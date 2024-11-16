@@ -31,7 +31,7 @@ export function ConditionallyNestedExample() {
     </>
   );
   return (
-    <FluidFlexbox className="gap-2" containerClassName="overflow-hidden">
+    <FluidFlexbox className="gap-2">
       {(isWidestWrapped) =>
         !isWidestWrapped ? (
           contentWhenWidest

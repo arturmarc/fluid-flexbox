@@ -64,29 +64,23 @@ export function FluidFlexbox({
 
   const onNowrapResize = useCallback(
     throttle(({ height }: { height: number | undefined }) => {
-      if (height === undefined) {
-        return;
-      }
-      nonWrappingElHeight.current = height;
-      checkIfWrapping();
+      nonWrappingElHeight.current = height || 0;
+      requestAnimationFrame(() => checkIfWrapping());
     }, throttleTime),
     [throttleTime],
   );
 
   const onWrappingResize = useCallback(
     throttle(({ height }: { height: number | undefined }) => {
-      if (height === undefined) {
-        return;
-      }
-      wrappingElHeight.current = height;
-      checkIfWrapping();
+      wrappingElHeight.current = height || 0;
+      requestAnimationFrame(() => checkIfWrapping());
     }, throttleTime),
     [throttleTime],
   );
 
   const onContainerResize = useCallback(
     throttle(() => {
-      checkIfWrapping();
+      requestAnimationFrame(() => checkIfWrapping());
     }, throttleTime),
     [throttleTime],
   );
@@ -139,7 +133,7 @@ export function FluidFlexbox({
     // first rule is needed to make sure the children of the non-wrapping
     // hidden clone are not expanding the container horizontally
     // (without it the text inside might start wrapping to the next line)
-    // second is similar, but it's needed to prevent fouc i.e. content wrapping
+    // second rule is similar, but it's needed to prevent fouc i.e. content wrapping
     // before the smaller content is rendered by react and visible
     styleEl.innerHTML = `
       [data-fluid-flexbox="invisible-non-wrapping"] > div > * {       
@@ -169,7 +163,8 @@ export function FluidFlexbox({
       renderCountRef.current += 1;
       if (renderCountRef.current > threshold) {
         console.warn(
-          "FluidFlexbox infinite loop detected. This is likely not what you want. More details: https://github.com/arturmarc/fluid-flexbox#infinite-loops",
+          "FluidFlexbox infinite loop detected. This is likely not what you want. " +
+            "More details: https://github.com/arturmarc/fluid-flexbox#infinite-loops",
         );
         setLocked(true);
         setIsWrapped(true);
