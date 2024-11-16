@@ -1,3 +1,5 @@
+import { reverseMutations, startRecordingMutations } from "./reverseMutations";
+
 export class FlexWrapDetectorElement extends HTMLElement {
   // The child element of this custom element.
   // it has to be a single child that will become
@@ -12,20 +14,16 @@ export class FlexWrapDetectorElement extends HTMLElement {
     return this.rawChildElement as HTMLElement;
   }
 
-  static observedAttributes = ["wrapping-class", "set-wrapping-content"];
+  static observedAttributes = ["wrapped-class", "set-wrapped-content"];
 
   attributeChangedCallback(name: string, _oldValue: string, newValue: string) {
-    if (name === "wrapping-class") {
-      this.wrappingClass = newValue || "";
+    if (name === "wrapped-class") {
+      this.wrappedClass = newValue || "";
     }
-    if (name === "set-wrapping-content") {
-      this.setWrappingContent = true;
-    }
+    // TODO - add and handle wrapped-style
   }
 
-  wrappingClass: string = "";
-
-  setWrappingContent: boolean = false;
+  wrappedClass: string = "";
 
   // the main slot
   slotElement: HTMLSlotElement;
@@ -45,16 +43,19 @@ export class FlexWrapDetectorElement extends HTMLElement {
 
   resizeObservers: ResizeObserver[] = [];
 
-  isWrapping = false;
+  isWrapped = false;
 
-  nonWrappingElSize: Size | null = null;
+  nonWrappingElHeight = 0;
 
-  wrappingElSize: Size | null = null;
+  wrappingElHeight = 0;
 
   mutatingInternally = false;
 
+  // save mutations to wrapped content to be able to reverse them
+  wrappedContentMutations: MutationRecord[] = [];
+
   // marks the first time the slot has changed
-  // slightly different handling in needed in that case
+  // slightly different handling is needed in that case
   firstSlotChange = true;
 
   constructor() {
@@ -77,10 +78,10 @@ export class FlexWrapDetectorElement extends HTMLElement {
           overflow: hidden;
           z-index: -1;
         }
-        .wrapping-content {
+        .wrapped-content {
           display: none;
         }  
-        .content, .wrapping-content {
+        .content, .wrapped-content {
           grid-area: 1/1;
           overflow: hidden;
         }
@@ -95,8 +96,8 @@ export class FlexWrapDetectorElement extends HTMLElement {
       <div class="invisible-wrapping">
         <slot name="invisible-wrapping"></slot>
       </div>
-      <div class="wrapping-content">
-        <slot name="wrapping-content"></slot>
+      <div class="wrapped-content">
+        <slot name="wrapped-content"></slot>
       </div>
       <div class="content">
         <slot></slot>
@@ -112,10 +113,6 @@ export class FlexWrapDetectorElement extends HTMLElement {
     }
 
     this.slotElement = slotElement;
-
-    console.log("CONSRUCTOR", this.slotElement);
-
-    // this.mutationReverser = new MutationReverser(this.slotElement);
   }
 
   handleSlotChange() {
@@ -147,11 +144,11 @@ export class FlexWrapDetectorElement extends HTMLElement {
       );
     }
 
-    if (this.firstSlotChange && this.wrappingChangeApplied) {
+    if (this.firstSlotChange && this.wrappedChangesApplied) {
       // again, if cloned, the class might be applied already
       // clearing it here so it won't get copied to invisible elements
       // it will get re-applied in size observer
-      this.applyWrappingChange(false);
+      this.applyWrappedChange(false);
     }
 
     this.invisibleNonWrappingEl = this.childElement.cloneNode(
@@ -185,45 +182,15 @@ export class FlexWrapDetectorElement extends HTMLElement {
 
   initMutationObserver() {
     this.mutationObserver?.disconnect();
-    this.mutationObserver = new MutationObserver(
-      (mutationList: MutationRecord[]) => {
-        console.log(
-          this.mutatingInternally,
-          "mutatingInternally",
-          this.getAttribute("classname"),
-          mutationList,
-        );
-        if (this.mutatingInternally) {
-          return;
-        }
+    this.mutationObserver = new MutationObserver(() => {
+      if (this.mutatingInternally) {
+        return;
+      }
+      // todo - consider benchmarking if this is fast enough
+      this.copyChildToInvisibleElements();
+      this.initResizeObservers();
+    });
 
-        for (let mutation of mutationList) {
-          if (
-            mutation.type === "attributes" &&
-            mutation.attributeName === "class" &&
-            mutation.target instanceof HTMLElement
-          ) {
-            const mutEl = mutation.target as HTMLElement;
-            if (
-              mutEl === this.childElement &&
-              this.wrappingChangeApplied &&
-              !mutEl.className.match(new RegExp(`${this.wrappingClass}$`))
-            ) {
-              console.warn(
-                "[flex-wrap-detector] Changing the wrapping class " +
-                  "applied by the detector can cause unexpected behavior.",
-              );
-              mutEl.className =
-                `${mutEl.className} ${this.wrappingClass}`.trim();
-            }
-          }
-        }
-        this.copyChildToInvisibleElements();
-        this.initResizeObservers();
-      },
-    );
-
-    // todo benchmark if this is fast enough
     this.mutationObserver.observe(this.childElement, {
       childList: true,
       attributes: true,
@@ -242,18 +209,15 @@ export class FlexWrapDetectorElement extends HTMLElement {
 
     const initObserver = (
       el: HTMLElement,
-      sizeProp?: "nonWrappingElSize" | "wrappingElSize",
+      heightProp?: "nonWrappingElHeight" | "wrappingElHeight",
     ) => {
       const resizeObserver = new ResizeObserver((entries) => {
         for (const entry of entries) {
           if (!entry.contentBoxSize) {
             continue;
           }
-          if (sizeProp) {
-            this[sizeProp] = {
-              w: entry.contentBoxSize[0].inlineSize,
-              h: entry.contentBoxSize[0].blockSize,
-            };
+          if (heightProp) {
+            this[heightProp] = entry.contentBoxSize[0].blockSize;
           }
           this.checkIfWrapping();
         }
@@ -262,9 +226,9 @@ export class FlexWrapDetectorElement extends HTMLElement {
 
       resizeObserver.observe(el);
     };
-    // console.log("init observers", this.slotElement);
-    initObserver(this.invisibleNonWrappingEl, "nonWrappingElSize");
-    initObserver(this.invisibleWrappingEl, "wrappingElSize");
+
+    initObserver(this.invisibleNonWrappingEl, "nonWrappingElHeight");
+    initObserver(this.invisibleWrappingEl, "wrappingElHeight");
     initObserver(this); // also check when the whole wrapper re-resizes
   }
 
@@ -276,139 +240,117 @@ export class FlexWrapDetectorElement extends HTMLElement {
     ) {
       throw "[flex-wrap-detector] Failed to check if overflowing. References missing this is a bug.";
     }
-    if (!this.nonWrappingElSize || !this.wrappingElSize) {
+    if (!this.nonWrappingElHeight || !this.wrappingElHeight) {
       return;
     }
 
-    if (this.nonWrappingElSize.h === this.wrappingElSize.h) {
-      const lastChildNonWrapping = this.invisibleNonWrappingEl
-        .lastElementChild as HTMLElement;
-      const lastChildWrapping = this.invisibleWrappingEl
-        .lastElementChild as HTMLElement;
-
-      if (lastChildNonWrapping && lastChildWrapping) {
-        this.isWrapping =
-          lastChildNonWrapping.offsetTop !== lastChildWrapping.offsetTop;
-      }
+    if (this.nonWrappingElHeight !== this.wrappingElHeight) {
+      // if height are not equal it's wrapped
+      this.isWrapped = true;
     } else {
-      this.isWrapping = this.nonWrappingElSize.h !== this.wrappingElSize.h;
+      this.isWrapped = false;
+      // if heights are equal, either is not wrapped or need to check children's offset top
+      const childCount = this.invisibleNonWrappingEl.childElementCount;
+      // go in reverse order for a slight optimization (most of the time the last child will wrap first)
+      for (let childIdx = childCount - 1; childIdx >= 0; childIdx -= 1) {
+        const nonWrappingChild = this.invisibleNonWrappingEl.children[
+          childIdx
+        ] as HTMLElement;
+        const wrappingChild = this.invisibleWrappingEl.children[
+          childIdx
+        ] as HTMLElement;
+        if (nonWrappingChild.offsetTop !== wrappingChild.offsetTop) {
+          this.isWrapped = true;
+          break;
+        }
+      }
     }
 
-    // console.log("isWrapping", this.isWrapping);
-
-    if (this.isWrapping && !this.wrappingChangeApplied) {
-      this.applyWrappingChange(true);
+    if (this.isWrapped && !this.wrappedChangesApplied) {
+      this.applyWrappedChange(true);
     }
-    if (!this.isWrapping && this.wrappingChangeApplied) {
-      this.applyWrappingChange(false);
+    if (!this.isWrapped && this.wrappedChangesApplied) {
+      this.applyWrappedChange(false);
     }
   }
 
   // need to remember this value because the element might get copied
-  // with the wrapping already applied so keep it in an attribute
-  set wrappingChangeApplied(val: boolean) {
+  // with the wrapped changes already applied so keep it in an attribute
+  set wrappedChangesApplied(val: boolean) {
     this.mutatingInternally = true;
-    // todo benchmark if this is fast enough
+    // todo - consider benchmarking if this is fast enough
     if (val) {
-      this.setAttribute("data-wrapping-class-applied", "true");
+      this.setAttribute("data-wrapped-changes-applied", "true");
     } else {
-      this.removeAttribute("data-wrapping-class-applied");
+      this.removeAttribute("data-wrapped-changes-applied");
     }
-    setTimeout(() => {
-      // clear mutating flag on next tick
-      this.mutatingInternally = false;
-    });
+    this.mutationObserver?.takeRecords();
+    this.mutatingInternally = false;
   }
 
-  get wrappingChangeApplied() {
-    return this.hasAttribute("data-wrapping-class-applied");
+  get wrappedChangesApplied() {
+    return this.hasAttribute("data-wrapped-changes-applied");
   }
 
-  get wrappingContent() {
-    return this.querySelector(":scope > [slot='wrapping-content']");
-  }
-
-  applyWrappingChange(isWrapping: boolean) {
+  applyWrappedChange(isWrapped: boolean) {
     this.mutatingInternally = true;
-    let wrappingContent = this.wrappingContent;
-    if (wrappingContent || this.setWrappingContent) {
-      if (wrappingContent && this.wrappingClass) {
+    const wrappedContent = this.querySelector(
+      ":scope > [slot='wrapped-content']",
+    );
+    if (wrappedContent) {
+      if (wrappedContent && this.wrappedClass) {
         console.warn(
-          '[flex-wrap-detector] "wrapping-content" slot is set. The wrapping-class won\'t be applied.',
+          '[flex-wrap-detector] "wrapped-content" slot is set. The wrapped-class won\'t be applied.',
         );
       }
-      if (this.setWrappingContent && this.wrappingClass) {
-        console.warn(
-          '[flex-wrap-detector] "set-wrapping-content" attribute is set. The wrapping-class won\'t be applied.',
-        );
-      }
-      if (!wrappingContent) {
-        wrappingContent = this.createWrappingContent();
-      }
-      this.showHideWrappingContent(isWrapping);
+      // todo - consider: there is no way to detect if the 'set-wrapped-content' event is listened to
+      // so no way of warning that if the wrapped-content is set the even won't fire
+      // is this a problem?
+      this.showHideWrappedContent(isWrapped);
     } else {
-      this.setWrappingClass(isWrapping);
+      this.doOrUndoWrappingContentMutations(isWrapped);
     }
-    this.wrappingChangeApplied = isWrapping; // mark change as applied internally
-    setTimeout(() => {
-      // clear mutating flag on next tick
-      this.mutatingInternally = false;
-    });
+    this.wrappedChangesApplied = isWrapped; // mark change as applied internally
+    this.mutationObserver?.takeRecords(); // flush all mutations to mark internal changes as applied
+    this.mutatingInternally = false;
   }
 
-  setWrappingClass(isWrapping: boolean) {
-    if (this.wrappingClass) {
-      if (isWrapping) {
-        this.childElement.className =
-          `${this.childElement.className} ${this.wrappingClass}`.trim();
-      } else {
-        this.childElement.className = this.childElement.className
-          .replace(`${this.wrappingClass}`, "")
-          .trim();
-      }
+  doOrUndoWrappingContentMutations(isWrapped: boolean) {
+    if (isWrapped) {
+      const recorder = startRecordingMutations(this.childElement);
+
+      this.childElement.className =
+        `${this.childElement.className} ${this.wrappedClass}`.trim();
+
+      const event = new CustomEvent("set-wrapped-content", {
+        detail: {
+          element: this.childElement,
+        },
+        bubbles: false,
+        composed: false,
+      });
+      this.dispatchEvent(event);
+
+      this.wrappedContentMutations = recorder.stopAndGetMutations();
+    } else {
+      reverseMutations(this.wrappedContentMutations);
+      this.wrappedContentMutations = [];
     }
   }
 
-  showHideWrappingContent(isWrapping: boolean) {
-    const contentWhenWrappingContainer = this.shadowRoot?.querySelector(
-      ".wrapping-content",
+  showHideWrappedContent(isWrapped: boolean) {
+    const wrappedContentContainer = this.shadowRoot?.querySelector(
+      ".wrapped-content",
     ) as HTMLElement;
-    if (contentWhenWrappingContainer) {
-      contentWhenWrappingContainer.style.display = isWrapping
-        ? "block"
-        : "none";
+    if (wrappedContentContainer) {
+      wrappedContentContainer.style.display = isWrapped ? "block" : "none";
     }
     const contentContainer = this.shadowRoot?.querySelector(
       ".content",
     ) as HTMLElement;
     if (contentContainer) {
-      contentContainer.style.display = isWrapping ? "none" : "block";
+      contentContainer.style.display = isWrapped ? "none" : "block";
     }
-  }
-
-  createWrappingContent() {
-    // if wrapping-content is *not* provided directly as a slot
-    // and "set-wrapping-content" is set, create a copy of the child element
-    const wrappingContent = this.childElement.cloneNode(true) as HTMLElement;
-    wrappingContent.slot = "wrapping-content";
-
-    // this event will only fire once and is used to set the wrapping content
-    // using existing content
-    const event = new CustomEvent("set-wrapping-content", {
-      detail: {
-        element: wrappingContent,
-      },
-      bubbles: false,
-      composed: false,
-    });
-    // ! TODO using mutation reverser so a copy does not have to be created
-    // but changes can be done by doing mutations on the original element
-    this.dispatchEvent(event);
-    this.childElement.parentElement?.insertBefore(
-      wrappingContent,
-      this.childElement,
-    );
-    return wrappingContent;
   }
 
   connectedCallback() {
@@ -431,11 +373,10 @@ const setStyleAndAttrDefaultsForInvisible = (el: HTMLElement) => {
   el.style.flexDirection = "row";
   el.style.visibility = "hidden ";
   el.removeAttribute("id");
+  // remove id attribute from all descendants that have it
+  el.querySelectorAll("*").forEach((el) => {
+    el.removeAttribute("id");
+  });
 };
-
-interface Size {
-  w: number;
-  h: number;
-}
 
 customElements.define("flex-wrap-detector", FlexWrapDetectorElement);
