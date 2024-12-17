@@ -1,0 +1,39 @@
+<flex-wrap-detector>
+    <div >
+        <div class="flex flex-grow justify-between gap-2">
+            <a class="link-example" href="#">Home</a>
+            <a class="link-example" href="#">Gallery</a>
+            <a class="link-example" href="#">Blog</a>
+            <a class="link-example" href="#">FAQ</a>
+            <a class="link-example" href="#">Contact</a>
+            <a class="link-example" href="#">About</a>
+        </div>
+        <div class="h-[1px]"></div>
+    </div>
+    <div slot="wrapped-content">
+        <flex-wrap-detector class="flex-grow tst">
+            <div>
+                <div class="flex flex-grow flex-wrap justify-between gap-2 flex-col">
+                    <div class="flex flex-grow justify-between gap-2">
+                        <a class="link-example" href="#">Home</a>
+                        <a class="link-example" href="#">Gallery</a>
+                        <a class="link-example" href="#">Blog</a>
+                    </div>
+                    <div class="flex flex-grow justify-between gap-2">
+                        <a class="link-example" href="#">FAQ</a>
+                        <a class="link-example" href="#">Contact</a>
+                        <a class="link-example" href="#">About</a>
+                    </div>
+                </div>
+                <div class="h-[1px]"></div>
+            </div>
+            <div slot="wrapped-content" class="flex flex-grow justify-end">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu">
+                    <line x1="4" x2="20" y1="12" y2="12"></line>
+                    <line x1="4" x2="20" y1="6" y2="6"></line>
+                    <line x1="4" x2="20" y1="18" y2="18"></line>
+                </svg>
+            </div>
+        </flex-wrap-detector>
+    </div>
+</flex-wrap-detector>

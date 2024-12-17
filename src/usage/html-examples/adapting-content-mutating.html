@@ -1,0 +1,24 @@
+<flex-wrap-detector id="detector">
+    <div class="flex gap-2 items-center">
+        <div class="button-example">Input's</div>
+        <input class="input-example" type="text" placeholder="state will be preserved"/>
+        <div class="button-example" id="to-remove">Removable</div>
+    </div>
+</flex-wrap-detector>
+<script>
+    const detector = document.querySelector("#detector")
+    detector.addEventListener("set-wrapped-content", (e) => {
+        const child = e
+            .detail
+            .element
+            .querySelector("#to-remove");
+        if (child) {
+            child
+                .parentElement
+                .removeChild(child);
+        }
+    });
+    // !! make sure to call this after applying the listener
+    // otherwise the changes won't get applied if the content is already wrapped
+    detector.reApplyIfWrapped();
+</script>

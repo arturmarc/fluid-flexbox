@@ -1,0 +1,28 @@
+<flex-wrap-detector >
+    <div class="gap-2">
+        <div class="button-example">Close</div>
+        <div class="button-example">New</div>
+        <div class="button-example">Delete</div>
+    </div>
+    <div slot="wrapped-content" class="gap-2">
+        <div class="button-example">X</div>
+        <flex-wrap-detector >
+            <div class="gap-2">
+                <div class="button-example">New</div>
+                <div class="button-example">Delete</div>
+            </div>
+            <div slot="wrapped-content" class="gap-2">
+                <div class="button-example">+</div>
+                <flex-wrap-detector>
+                    <div>
+                        <div class="button-example">Delete</div>
+                        <div classname="h-[1px]"></div>
+                    </div>
+                    <div slot="wrapped-content">
+                        <div class="button-example">-</div>
+                    </div>
+                </flex-wrap-detector>
+            </div>
+        </flex-wrap-detector>
+    </div>
+</flex-wrap-detector>

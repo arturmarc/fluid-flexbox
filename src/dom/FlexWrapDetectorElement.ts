@@ -401,6 +401,12 @@ export class FlexWrapDetectorElement extends HTMLElement {
       contentContainer.style.display = isWrapped ? "none" : "block";
     }
   }
+
+  reApplyIfWrapped() {
+    if (this.wrappedChangesApplied) {
+      this.applyWrappedChange(true);
+    }
+  }
 }
 
 const setStyleAndAttrDefaultsForInvisible = (el: HTMLElement) => {

@@ -1,0 +1,21 @@
+<flex-wrap-detector >
+    <div class="gap-2">
+        <div class="button-example">Longer</div>
+        <div class="button-example">Button</div>
+        <div class="button-example">Labels</div>
+    </div>
+    <div class="gap-2" slot="wrapped-content">
+        <flex-wrap-detector class="flex-grow">
+            <div class="gap-2">
+                <div class="button-example">Shrt</div>
+                <div class="button-example">But</div>
+                <div class="button-example">Lbl</div>
+            </div>
+            <div class="gap-2 justify-between" slot="wrapped-content">
+                <div class="button-example flex-grow p-0.5">x</div>
+                <div class="button-example flex-grow p-0.5">+</div>
+                <div class="button-example flex-grow p-0.5">-</div>
+            </div>
+        </flex-wrap-detector>
+    </div>
+</flex-wrap-detector>

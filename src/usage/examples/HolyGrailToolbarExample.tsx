@@ -3,7 +3,7 @@ import { FluidFlexbox } from "../../react/FluidFlexbox";
 
 export function HolyGrailToolbarExample() {
   return (
-    <FluidFlexbox className="gap-2" containerClassName="w-full">
+    <FluidFlexbox containerClassName="w-full">
       {(isOuterWrapped) => (
         <>
           <FluidFlexbox className="flex-grow" containerClassName="flex-grow">
@@ -43,10 +43,12 @@ export function HolyGrailToolbarExample() {
 
 function Item({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-w-0 flex-1 px-4 py-2 text-center">
-      <a className="text-secondary-foreground underline" href="#">
-        {children}
-      </a>
-    </div>
+    <a
+      className="min-w-0 flex-1 basis-1/3 px-4 py-2 text-center text-secondary-foreground underline hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+      href="#"
+      onClick={(e) => e.preventDefault()}
+    >
+      {children}
+    </a>
   );
 }

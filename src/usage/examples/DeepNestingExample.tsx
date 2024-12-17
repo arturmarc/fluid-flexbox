@@ -12,7 +12,6 @@ export function DeepNestingExample() {
             {(innerIsWrapped) => (
               <>
                 <Button>
-                  {" "}
                   {innerIsWrapped ? <PlusIcon size="20" /> : "New"}
                 </Button>
                 <FluidFlexbox>

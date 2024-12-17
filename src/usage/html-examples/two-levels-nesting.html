@@ -1,0 +1,23 @@
+<flex-wrap-detector class="w-full">
+    <div class="gap-2 flex-grow">
+        <div class="button-example flex-1">First</div>
+        <div class="button-example flex-1">Second</div>
+        <div class="button-example flex-1">Third</div>
+        <div class="button-example flex-1">Fourth</div>
+    </div>
+
+    <div class="flex-col gap-2" slot="wrapped-content">
+        <flex-wrap-detector class="flex-grow" wrapped-class="flex-col">
+            <div class="gap-2 justify-between">
+                <div class="button-example flex-1">Wrapped</div>
+                <div class="button-example flex-1">Second</div>
+            </div>
+        </flex-wrap-detector>
+        <flex-wrap-detector class="flex-grow" wrapped-class="flex-col">
+            <div class="gap-2 justify-between">
+                <div class="button-example flex-1">Third</div>
+                <div class="button-example flex-1">Fourth</div>
+            </div>
+        </flex-wrap-detector>
+    </div>
+</flex-wrap-detector>
