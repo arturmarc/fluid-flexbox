@@ -3,7 +3,7 @@ import { reverseMutations, startRecordingMutations } from "./reverseMutations";
 export class FlexWrapDetectorElement extends HTMLElement {
   // The child element of this custom element.
   // it has to be a single child that will become
-  // (if it is not already) a flex row container
+  // flex row container (if it is not already)
   rawChildElement: HTMLElement | null = null;
 
   // type-safe getter
@@ -14,13 +14,13 @@ export class FlexWrapDetectorElement extends HTMLElement {
     return this.rawChildElement as HTMLElement;
   }
 
-  static observedAttributes = ["wrapped-class", "set-wrapped-content"];
+  static observedAttributes = ["wrapped-class"];
 
   attributeChangedCallback(name: string, _oldValue: string, newValue: string) {
     if (name === "wrapped-class") {
       this.wrappedClass = newValue || "";
     }
-    // TODO - add and handle wrapped-style
+    // TODO - add and handle wrapped-style custom attribute
   }
 
   wrappedClass: string = "";
@@ -37,31 +37,26 @@ export class FlexWrapDetectorElement extends HTMLElement {
 
   // copy of the child element
   // will go to invisible-wrapping slot
+  // this one has flex-wrap: wrap forced
   invisibleWrappingEl: HTMLElement | null = null;
 
   mutationObserver: MutationObserver | null = null;
 
-  resizeObservers: ResizeObserver[] = [];
+  resizeObserver: ResizeObserver | null = null;
 
-  isWrapped = false;
-
-  nonWrappingElHeight = 0;
-
-  wrappingElHeight = 0;
-
+  // mark mutations that happen internally
+  // so the mutation observer can skip them
   mutatingInternally = false;
 
   // save mutations to wrapped content to be able to reverse them
   wrappedContentMutations: MutationRecord[] = [];
 
-  // marks the first time the slot has changed
-  // slightly different handling is needed in that case
-  firstSlotChange = true;
+  skipNextCheckIfWrapping = false;
 
   constructor() {
     super();
     const shadowRoot = this.attachShadow({ mode: "open" });
-    // ?? move this code to connectedCallback
+
     shadowRoot.innerHTML = `
       <style>
         :host {
@@ -89,6 +84,9 @@ export class FlexWrapDetectorElement extends HTMLElement {
           display: flex;
           position: relative;
         }
+        .invisible-non-wrapping.wrapped {
+          height: 1px;
+        }
       </style>
       <div class="invisible-non-wrapping">
         <slot name="invisible-non-wrapping"></slot>
@@ -115,7 +113,7 @@ export class FlexWrapDetectorElement extends HTMLElement {
     this.slotElement = slotElement;
   }
 
-  handleSlotChange() {
+  connectedCallback() {
     const slotChildren = this.slotElement.assignedElements();
     if (
       slotChildren.length !== 1 ||
@@ -127,14 +125,40 @@ export class FlexWrapDetectorElement extends HTMLElement {
 
     this.copyChildToInvisibleElements();
     this.initMutationObserver();
-    this.initResizeObservers();
-    this.firstSlotChange = false;
+  }
+
+  disconnectedCallback() {
+    const pendingMutations = this.mutationObserver?.takeRecords();
+    if (pendingMutations && pendingMutations.length > 0) {
+      // make sure to handle mutations before disconnecting
+      this.handleMutations();
+    }
+    this.mutationObserver?.disconnect();
+    this.resizeObserver?.disconnect();
   }
 
   copyChildToInvisibleElements() {
+    const existingNonWrapping = this.querySelector(
+      ":scope > [slot='invisible-non-wrapping']",
+    ) as HTMLElement | null;
+    const existingWrapping = this.querySelector(
+      ":scope > [slot='invisible-wrapping']",
+    ) as HTMLElement | null;
+    if (
+      existingNonWrapping &&
+      existingWrapping &&
+      !this.invisibleNonWrappingEl &&
+      !this.invisibleWrappingEl
+    ) {
+      // re-use existing invisible elements
+      // they might already be there if the element has been cloned
+      // (likely when nesting flex-wrap-detectors)
+      this.invisibleNonWrappingEl = existingNonWrapping;
+      this.invisibleWrappingEl = existingWrapping;
+      return;
+    }
+
     // clear already existing invisible copies
-    // using querySelector instead of direct references because
-    // the element might have been cloned and the references would be invalid
     this.querySelector(":scope > [slot='invisible-non-wrapping']")?.remove();
     this.querySelector(":scope > [slot='invisible-wrapping']")?.remove();
 
@@ -144,20 +168,14 @@ export class FlexWrapDetectorElement extends HTMLElement {
       );
     }
 
-    if (this.firstSlotChange && this.wrappedChangesApplied) {
-      // again, if cloned, the class might be applied already
-      // clearing it here so it won't get copied to invisible elements
-      // it will get re-applied in size observer
-      this.applyWrappedChange(false);
-    }
-
     this.invisibleNonWrappingEl = this.childElement.cloneNode(
       true,
     ) as HTMLElement;
     setStyleAndAttrDefaultsForInvisible(this.invisibleNonWrappingEl);
-    // the following is needed to make sure the children of the non-wrapping
+    // the following style is needed to make sure the children of the non-wrapping
     // hidden clone are not expanding the container horizontally
     // (without it the text inside might start wrapping to the next line)
+    // (it can't be applied using cs because those are not direct children of the detector)
     [...this.invisibleNonWrappingEl.children].forEach((el) => {
       (el as HTMLElement).style.flexShrink = "0";
     });
@@ -178,18 +196,15 @@ export class FlexWrapDetectorElement extends HTMLElement {
       this.invisibleWrappingEl,
       this.childElement,
     );
+
+    this.initResizeObserver();
   }
 
   initMutationObserver() {
     this.mutationObserver?.disconnect();
-    this.mutationObserver = new MutationObserver(() => {
-      if (this.mutatingInternally) {
-        return;
-      }
-      // todo - consider benchmarking if this is fast enough
-      this.copyChildToInvisibleElements();
-      this.initResizeObservers();
-    });
+    this.mutationObserver = new MutationObserver(
+      this.handleMutations.bind(this),
+    );
 
     this.mutationObserver.observe(this.childElement, {
       childList: true,
@@ -199,37 +214,44 @@ export class FlexWrapDetectorElement extends HTMLElement {
     });
   }
 
-  initResizeObservers() {
-    this.resizeObservers.forEach((ro) => ro.disconnect());
-    this.resizeObservers = [];
+  handleMutations() {
+    if (this.mutatingInternally) {
+      return;
+    }
 
+    if (this.wrappedChangesApplied) {
+      const suppressWarning = this.hasAttribute("suppress-warning");
+      if (suppressWarning) {
+        return;
+      }
+
+      console.warn(
+        "[flex-wrap-detector] Changes to observed content detected while wrapped. " +
+          "This will likely have undesired effects. See more at https://github.com/arturmarc/fluid-flexbox/flex-wrap-detector#dynamic-content " +
+          "You might see this warning because of nested <flex-wrap-detector> elements. " +
+          "In that case, or if you understand the implications, you can suppress this warning by " +
+          "adding a 'suppress-warning' attribute to the <flx-wrap-detector> . ",
+      );
+      return;
+    }
+    // todo - consider benchmarking if this is fast enough
+    this.copyChildToInvisibleElements();
+  }
+
+  initResizeObserver() {
     if (!this.invisibleNonWrappingEl || !this.invisibleWrappingEl) {
       throw "[flex-wrap-detector] Failed to init resize observer. No child element.";
     }
 
-    const initObserver = (
-      el: HTMLElement,
-      heightProp?: "nonWrappingElHeight" | "wrappingElHeight",
-    ) => {
-      const resizeObserver = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-          if (!entry.contentBoxSize) {
-            continue;
-          }
-          if (heightProp) {
-            this[heightProp] = entry.contentBoxSize[0].blockSize;
-          }
-          this.checkIfWrapping();
-        }
-      });
-      this.resizeObservers.push(resizeObserver);
+    this.resizeObserver?.disconnect();
 
-      resizeObserver.observe(el);
-    };
+    this.resizeObserver = new ResizeObserver(() => {
+      this.checkIfWrappingAndApply();
+    });
 
-    initObserver(this.invisibleNonWrappingEl, "nonWrappingElHeight");
-    initObserver(this.invisibleWrappingEl, "wrappingElHeight");
-    initObserver(this); // also check when the whole wrapper re-resizes
+    this.resizeObserver.observe(this.invisibleNonWrappingEl);
+    this.resizeObserver.observe(this.invisibleWrappingEl);
+    this.resizeObserver.observe(this);
   }
 
   checkIfWrapping() {
@@ -240,52 +262,62 @@ export class FlexWrapDetectorElement extends HTMLElement {
     ) {
       throw "[flex-wrap-detector] Failed to check if overflowing. References missing this is a bug.";
     }
-    if (!this.nonWrappingElHeight || !this.wrappingElHeight) {
-      return;
-    }
-
-    if (this.nonWrappingElHeight !== this.wrappingElHeight) {
-      // if height are not equal it's wrapped
-      this.isWrapped = true;
-    } else {
-      this.isWrapped = false;
-      // if heights are equal, either is not wrapped or need to check children's offset top
-      const childCount = this.invisibleNonWrappingEl.childElementCount;
-      // go in reverse order for a slight optimization (most of the time the last child will wrap first)
-      for (let childIdx = childCount - 1; childIdx >= 0; childIdx -= 1) {
-        const nonWrappingChild = this.invisibleNonWrappingEl.children[
-          childIdx
-        ] as HTMLElement;
-        const wrappingChild = this.invisibleWrappingEl.children[
-          childIdx
-        ] as HTMLElement;
-        if (nonWrappingChild.offsetTop !== wrappingChild.offsetTop) {
-          this.isWrapped = true;
-          break;
-        }
+    // check children's offset top
+    const childCount = this.invisibleNonWrappingEl.childElementCount;
+    // go in reverse order for a slight optimization (most of the time the last child will wrap first)
+    for (let childIdx = childCount - 1; childIdx >= 0; childIdx -= 1) {
+      const nonWrappingChild = this.invisibleNonWrappingEl.children[
+        childIdx
+      ] as HTMLElement;
+      const wrappingChild = this.invisibleWrappingEl.children[
+        childIdx
+      ] as HTMLElement;
+      if (nonWrappingChild.offsetTop !== wrappingChild.offsetTop) {
+        return true;
       }
     }
+    return false;
+  }
 
-    if (this.isWrapped && !this.wrappedChangesApplied) {
+  checkIfWrappingAndApply() {
+    if (this.skipNextCheckIfWrapping) {
+      this.skipNextCheckIfWrapping = false;
+      return;
+    }
+    const isWrapped = this.checkIfWrapping();
+
+    if (isWrapped && !this.wrappedChangesApplied) {
       this.applyWrappedChange(true);
     }
-    if (!this.isWrapped && this.wrappedChangesApplied) {
+    if (!isWrapped && this.wrappedChangesApplied) {
       this.applyWrappedChange(false);
     }
+  }
+
+  startMutatingInternally() {
+    const pendingMutations = this.mutationObserver?.takeRecords();
+    if (pendingMutations && pendingMutations.length > 0) {
+      this.handleMutations();
+    }
+    this.mutatingInternally = true;
+  }
+
+  endMutatingInternally() {
+    this.mutationObserver?.takeRecords();
+    this.mutatingInternally = false;
   }
 
   // need to remember this value because the element might get copied
   // with the wrapped changes already applied so keep it in an attribute
   set wrappedChangesApplied(val: boolean) {
-    this.mutatingInternally = true;
+    this.startMutatingInternally();
     // todo - consider benchmarking if this is fast enough
     if (val) {
       this.setAttribute("data-wrapped-changes-applied", "true");
     } else {
       this.removeAttribute("data-wrapped-changes-applied");
     }
-    this.mutationObserver?.takeRecords();
-    this.mutatingInternally = false;
+    this.endMutatingInternally();
   }
 
   get wrappedChangesApplied() {
@@ -293,7 +325,13 @@ export class FlexWrapDetectorElement extends HTMLElement {
   }
 
   applyWrappedChange(isWrapped: boolean) {
-    this.mutatingInternally = true;
+    this.startMutatingInternally();
+
+    // extra styling needed for invisible non-wrapping
+    this.shadowRoot
+      ?.querySelector(".invisible-non-wrapping")
+      ?.classList.toggle("wrapped", isWrapped);
+
     const wrappedContent = this.querySelector(
       ":scope > [slot='wrapped-content']",
     );
@@ -311,8 +349,19 @@ export class FlexWrapDetectorElement extends HTMLElement {
       this.doOrUndoWrappingContentMutations(isWrapped);
     }
     this.wrappedChangesApplied = isWrapped; // mark change as applied internally
-    this.mutationObserver?.takeRecords(); // flush all mutations to mark internal changes as applied
-    this.mutatingInternally = false;
+
+    // check if the change is causing an infinite loop
+    const isWrappedAfterAplying = this.checkIfWrapping();
+    if (isWrapped && !isWrappedAfterAplying) {
+      // TODO - consider showing a warning, but it might just work ok without
+      // console.warn(
+      //   "[flex-wrap-detector] Warning - infinite loop detected. " +
+      //     "See more at https://github.com/arturmarc/fluid-flexbox/flex-wrap-detector#infinite-loops",
+      // );
+      this.skipNextCheckIfWrapping = true;
+    }
+
+    this.endMutatingInternally();
   }
 
   doOrUndoWrappingContentMutations(isWrapped: boolean) {
@@ -352,19 +401,6 @@ export class FlexWrapDetectorElement extends HTMLElement {
       contentContainer.style.display = isWrapped ? "none" : "block";
     }
   }
-
-  connectedCallback() {
-    this.slotElement.addEventListener(
-      "slotchange",
-      this.handleSlotChange.bind(this),
-    );
-  }
-
-  disconnectedCallback() {
-    this.mutationObserver?.disconnect();
-    this.resizeObservers.forEach((ro) => ro.disconnect());
-    this.slotElement.removeEventListener("slotchange", this.handleSlotChange);
-  }
 }
 
 const setStyleAndAttrDefaultsForInvisible = (el: HTMLElement) => {
@@ -374,8 +410,10 @@ const setStyleAndAttrDefaultsForInvisible = (el: HTMLElement) => {
   el.style.visibility = "hidden ";
   el.removeAttribute("id");
   // remove id attribute from all descendants that have it
+  // todo - consider if this is needed, and are there any other modifications
+  // that might be needed to make to invisible copies
   el.querySelectorAll("*").forEach((el) => {
-    el.removeAttribute("id");
+    el.setAttribute("id", `${el.getAttribute("id") || ""}-invisible`);
   });
 };
 
