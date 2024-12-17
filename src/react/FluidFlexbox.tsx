@@ -60,8 +60,6 @@ export function FluidFlexbox({
   const nonWrappingElHeight = useRef(0);
   const wrappingElHeight = useRef(0);
 
-  console.log("redenr FFxbox", isWrapped);
-
   const onNowrapResize = useCallback(
     throttle(({ height }: { height: number | undefined }) => {
       nonWrappingElHeight.current = height || 0;
@@ -127,7 +125,7 @@ export function FluidFlexbox({
   // inject global styles for styling children
   useEffect(() => {
     const styleId = "fluid-flexbox-style-rules";
-    if (document.getElementById(styleId)) return;
+    if (document?.getElementById(styleId)) return;
     const styleEl = document.createElement("style");
     styleEl.id = styleId;
     // first rule is needed to make sure the children of the non-wrapping
@@ -136,7 +134,7 @@ export function FluidFlexbox({
     // second rule is similar, but it's needed to prevent fouc i.e. content wrapping
     // before the smaller content is rendered by react and visible
     styleEl.innerHTML = `
-      [data-fluid-flexbox="invisible-non-wrapping"] > div > * {       
+      [data-fluid-flexbox="invisible-non-wrapping"] > div > * {
         flex-shrink: 0 !important;
       }
       [data-fluid-flexbox="visible-not-wrapped"] > div > * {
@@ -212,6 +210,9 @@ export function FluidFlexbox({
         style={{
           gridArea: "1/1",
           overflow: "hidden",
+          // when wrapped, set the height to 1px to prevent it from stretching the height of the container
+          // if the wrapped content height is smaller than the
+          height: isWrapped ? "1px" : undefined,
           ...styleSizeReset,
         }}
       >
