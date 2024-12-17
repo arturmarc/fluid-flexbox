@@ -351,13 +351,8 @@ export class FlexWrapDetectorElement extends HTMLElement {
     this.wrappedChangesApplied = isWrapped; // mark change as applied internally
 
     // check if the change is causing an infinite loop
-    const isWrappedAfterAplying = this.checkIfWrapping();
-    if (isWrapped && !isWrappedAfterAplying) {
-      // TODO - consider showing a warning, but it might just work ok without
-      // console.warn(
-      //   "[flex-wrap-detector] Warning - infinite loop detected. " +
-      //     "See more at https://github.com/arturmarc/fluid-flexbox/flex-wrap-detector#infinite-loops",
-      // );
+    const isWrappedAfterApplying = this.checkIfWrapping();
+    if (isWrapped && !isWrappedAfterApplying) {
       this.skipNextCheckIfWrapping = true;
     }
 

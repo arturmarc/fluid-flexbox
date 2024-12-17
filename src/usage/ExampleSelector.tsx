@@ -133,7 +133,6 @@ export function ExampleSelector() {
     const scriptEls = document.querySelectorAll(
       "#html-example-container script",
     );
-    console.log(scriptEls, "scriptEls", htmlExample);
     scriptEls.forEach((el) => {
       const script = document.createElement("script");
       script.textContent = el.textContent;

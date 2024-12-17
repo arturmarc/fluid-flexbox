@@ -23,14 +23,24 @@ and ...
 Can be used with any js framework or as a standalone custom element: `<flex-wrap-detector>`.
 
 - Uses same technique as the react component, but without react.
-- Faster and lighter than the react component. But more cumbersome to use, when adapting content.
-- (TODO fix this using mutation reverser ?) less capable when adapting content, it copies that content, so input state would be lost for example
+- Faster and lighter than the react component, but more cumbersome to use when adapting content.
+- can be difficult to use when working with dynamically changing content
 
-# <FluidFlexbox />
+Full documentation: https://github.com/arturmarc/fluid-flexbox/blob/main/README-DETECTOR.md
+
+# `<FluidFlexbox />`
 
 ### Checkout the live demo:
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/~/github.com/arturmarc/fluid-flexbox?file=src/usage/examples/BasicUsageExample.tsx)
+
+## Installation
+
+Just install the package using npm or any other package manager:
+
+```bash
+npm install fluid-flexbox
+```
 
 ## Basic usage
 
@@ -41,16 +51,18 @@ Use the `wrappedClass` prop to add a css class when flex content is wrapped (no 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/~/github.com/arturmarc/fluid-flexbox?file=src/usage/examples/BasicUsageExample.tsx)
 
 ```jsx
+import { FluidFlexbox } from "fluid-flexbox";
+
 <FluidFlexbox className="gap-2" wrappedClass="flex-col">
   <Button>First</Button>
   <Button>Second</Button>
   <Button>Third</Button>
-</FluidFlexbox>
+</FluidFlexbox>;
 ```
 
-This example showcases a simple but useful use case. Changes the layout of a toolbar when buttons no longer fit in a single row and renders then in a column instead.
+This example showcases a simple but useful use case: changing the layout of a toolbar when buttons no longer fit in a single row and renders them in a column instead.
 
-> note: all examples are using [tailwind css utility classes](), If you're unfamiliar, Tailwind functions similarly to inline styles. For example `flex-col` is equivalent to `style="flex-direction: column"`, just applied using an utility class
+> note: all examples are using [tailwind css utility classes](), If you're unfamiliar, Tailwind functions work similarly to inline styles. For example `flex-col` is equivalent to `style="flex-direction: column"`, just applied using an utility class
 
 ## Adapting content
 
@@ -100,7 +112,7 @@ function Toolbar() {
 ## Nesting
 
 Two levels of nesting. \
-This example example demonstrates how fluid flexboxes can be nested. \
+This example example demonstrates how fluid flex-boxes can be nested. \
 It also showcases fluid flexbox being able to grow by using `containerClassName="flex-grow"`.
 
 <img src="/public/images/NestedExample.gif" style="height: 12rem" alt="Two levels of nesting demo gif" />
@@ -250,8 +262,8 @@ Can also be used to detect if a single element is overflowing it's container usi
 - `containerClassName` - css class to add to the container element (the flexbox element is wrapped in a div that you might want to style using this prop)
 - `throttleTime` - throttles the detection of overflowing content. Default is no throttling
 - `hidden` - convenience prop to hide the element (applying `display: none` to the FluidFlexbox component does not work)
-- (TODO) `removeClassWhenWrapped` - when set tot true `wrappedClass` replaces the `className` prop instead of adding to it. Default is false
-- (TODO) `catainerStyle` - css style to add to the container element (the flexbox element is wrapped in a div that you might want to style using this prop)
+- `removeClassWhenWrapped` - when set tot true `wrappedClass` replaces the `className` prop instead of adding to it. Default is false
+- `containerStyle` - css style to add to the container element (the flexbox element is wrapped in a div that you might want to style using this prop)
 
 # How it works and important considerations
 
@@ -271,5 +283,6 @@ That way `FluidFlexbox` can know if the original content would fit again when th
 
 ### Infinite loops
 
-If the alternative styling or content when <FluidFlexbox> is wrapped is actually making it _grow_ to fit the original non wrapped content again, it is possible to get into an infinite loop. There is a built in protection against this, but it's not perfect and it will still cause a multiple re-renders and flashes. The protection is timing based so depending on how fast the re-rendering is it might not trigger.
-Take care to adjust your wrapped styling and content to not cause that infinite loop. It's usually a mistake anyway since the whole point is to adjust your content and styling to fit better when original content is wrapped which means making the content smaller.
+If the alternative styling or content when `<FluidFlexbox>` is wrapped is actually making it _grow_ to fit the original non wrapped content again, it is possible to get into an infinite loop. There is a built in protection against this, but it's not perfect and it will still cause multiple re-renders and flashes. The protection is timing based so depending on how fast the re-rendering is it might not trigger. \
+Take care to adjust your wrapped styling and content to not cause that infinite loop. It's usually a mistake anyway since the whole point is to adjust your content and styling to fit better when original content is wrapped which means making the content smaller. \
+The `<flex-wrap-detector>` handles infinite loops much better, so consider using it if you have serious problem with them in the react version.

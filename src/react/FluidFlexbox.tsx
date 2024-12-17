@@ -272,7 +272,7 @@ export function FluidFlexbox({
           ...(!isWrapped
             ? {
                 // this is needed to allow the visible to shrink below it's content size
-                // could be solved by allowing wrapping but that creates a fauc (see blow)
+                // could be solved by allowing wrapping but that creates a fouc (see blow)
                 // or it could be solved by overflow: "hidden",
                 // this way is better tough, because user's might want the content
                 // too bleed out of the container and overflow: "hidden" would prevent that
