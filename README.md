@@ -5,7 +5,9 @@
 React component that detects when it's flex children no longer fit in a single row.
 Allows styles and content to dynamically adapt the space available.
 
-Powerful responsive layout tool that enables responsive styling not based on pixel sizes but on the available space.
+Powerful tool for responsive layout that enables responsive styling not based on pixel sizes but on the available space. For example:
+
+<img src="/public/images/BasicExample.gif" style="height: 12rem" alt="Basic usage demo gif" />
 
 - uses css flexbox model and extends it
 - entirely dynamic (no calculations involved) adapts to any change in content, parent css etc..
