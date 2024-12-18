@@ -3,7 +3,10 @@
   "private": false,
   "version": "0.1.0",
   "type": "module",
-  "repository": "git@github.com:arturmarc/fluid-flexbox.git",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/arturmarc/fluid-flexbox.git"
+  },
   "description": "A \"flex-wrap on steroids\" component and custom element that detects when it's flex children no longer fit in a single row.",
   "author": "Artur Marczyk <artur.marczyk@gmail.com>",
   "license": "MIT",
