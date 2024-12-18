@@ -1,0 +1,62 @@
+<div class="flex flex-col gap-4">
+    <div>
+        <flex-wrap-detector wrapped-class="flex-col" id="breaking-detector">
+            <div class="flex gap-2">
+                <div class="button-example">Dynamic content</div>
+                <div class="button-example" id="to-hide">breaks</div>
+            </div>
+        </flex-wrap-detector>
+        <div class="flex-col gap-2" style="padding-top: 0.75rem">
+            <button class="button-example" onclick="document.querySelector('#breaking-detector #to-hide').classList.toggle('hide-example-button')">
+                Toggle extra button
+            </button>
+            <div class="text-sm">Toggle when collapsed to see the wrapped class still applied even when one button fits</div>
+        </div>
+    </div>
+
+    <div>
+        <flex-wrap-detector id="fixed-detector">
+            <div class="flex gap-2">
+                <div class="button-example">Dynamic content</div>
+                <div class="button-example" id="to-hide-fix1">easy fix</div>
+            </div>
+            <div slot="wrapped-content" class="flex-col gap-2">
+                <div class="button-example">Dynamic content</div>
+                <div class="button-example" id="to-hide-fix1-copy">easy fix</div>
+            </div>
+        </flex-wrap-detector>
+        <div class="flex-col gap-2" style="padding-top: 0.75rem">
+            <button class="button-example" onclick="document.querySelectorAll('#fixed-detector #to-hide-fix1, #fixed-detector #to-hide-fix1-copy').
+                forEach(e => e.classList.toggle('hide-example-button'))">
+                Toggle extra button
+            </button>
+            <div class="text-sm">Now when collapsed hiding the extra button works as expected</div>
+        </div>
+    </div>
+
+    <div>
+        <flex-wrap-detector wrapped-class="flex-col" suppress-warning="true" id="fixed-detector-2">
+            <div class="flex gap-2">
+                <div class="button-example">Dynamic content</div>
+                <div class="button-example to-hide-fix">involved fix</div>
+            </div>
+        </flex-wrap-detector>
+        <div class="flex-col gap-2" style="padding-top: 0.75rem">
+            <button class="button-example" id="fix2-button">
+                Toggle extra button
+            </button>
+            <div class="text-sm">Now when collapsed hiding the extra button works as expected</div>
+        </div>
+        <script>
+            document
+                .querySelector('#fix2-button')
+                .onclick = () => {
+                    // get *all* the buttons that are inside the detector
+                    // not using a class to find them
+                    document
+                        .querySelectorAll('#fixed-detector-2 .to-hide-fix')
+                        .forEach(e => e.classList.toggle('hide-example-button'));
+                }
+        </script>
+    </div>
+</div>

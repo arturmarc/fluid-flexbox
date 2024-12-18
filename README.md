@@ -28,7 +28,7 @@ Can be used with any js framework or as a standalone custom element: `<flex-wrap
 
 Full documentation: https://github.com/arturmarc/fluid-flexbox/blob/main/README-DETECTOR.md
 
-# `<FluidFlexbox />`
+## `<FluidFlexbox />`
 
 ### Checkout the live demo:
 

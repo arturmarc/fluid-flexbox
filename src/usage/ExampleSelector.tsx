@@ -40,6 +40,7 @@ import conditionallyNestedHtml from "./html-examples/conditionally-nested.html?r
 import deepNestingHtml from "./html-examples/deep-nesting.html?raw";
 import singleChildHtml from "./html-examples/single-child.html?raw";
 import holyGrailHtml from "./html-examples/holy-grail.html?raw";
+import dynamicContentHtml from "./html-examples/dynamic-content.html?raw";
 import { Resizer } from "./Resizer";
 import { SmallerHeight } from "./examples/SmallerHeight";
 
@@ -122,6 +123,7 @@ export function ExampleSelector() {
         ["Deep nesting", deepNestingHtml],
         ["Single child", singleChildHtml],
         ['"Holy Grail" toolbar', holyGrailHtml],
+        ["Dynamic content pitfalls", dynamicContentHtml],
       ]),
     [],
   );

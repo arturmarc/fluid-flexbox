@@ -53,6 +53,9 @@ export class FlexWrapDetectorElement extends HTMLElement {
 
   skipNextCheckIfWrapping = false;
 
+  // used to display a warning that the event might not work
+  hasListenersForWrappedContent = false;
+
   constructor() {
     super();
     const shadowRoot = this.attachShadow({ mode: "open" });
@@ -218,8 +221,12 @@ export class FlexWrapDetectorElement extends HTMLElement {
     if (this.mutatingInternally) {
       return;
     }
+    console.log();
+    const wrappedContent = this.querySelector(
+      ":scope > [slot='wrapped-content']",
+    );
 
-    if (this.wrappedChangesApplied) {
+    if (this.wrappedChangesApplied && !wrappedContent) {
       const suppressWarning = this.hasAttribute("suppress-warning");
       if (suppressWarning) {
         return;
@@ -227,7 +234,7 @@ export class FlexWrapDetectorElement extends HTMLElement {
 
       console.warn(
         "[flex-wrap-detector] Changes to observed content detected while wrapped. " +
-          "This will likely have undesired effects. See more at https://github.com/arturmarc/fluid-flexbox/flex-wrap-detector#dynamic-content " +
+          "This will likely have undesired effects. See more at https://github.com/arturmarc/fluid-flexbox/tree/main/flex-wrap-detector#dynamic-content " +
           "You might see this warning because of nested <flex-wrap-detector> elements. " +
           "In that case, or if you understand the implications, you can suppress this warning by " +
           "adding a 'suppress-warning' attribute to the <flx-wrap-detector> . ",
@@ -336,14 +343,16 @@ export class FlexWrapDetectorElement extends HTMLElement {
       ":scope > [slot='wrapped-content']",
     );
     if (wrappedContent) {
-      if (wrappedContent && this.wrappedClass) {
+      if (this.wrappedClass) {
         console.warn(
           '[flex-wrap-detector] "wrapped-content" slot is set. The wrapped-class won\'t be applied.',
         );
       }
-      // todo - consider: there is no way to detect if the 'set-wrapped-content' event is listened to
-      // so no way of warning that if the wrapped-content is set the even won't fire
-      // is this a problem?
+      if (this.hasListenersForWrappedContent) {
+        console.warn(
+          '[flex-wrap-detector] "wrapped-content" slot is set. The "set-wrapped-content" event won\'t be fired.',
+        );
+      }
       this.showHideWrappedContent(isWrapped);
     } else {
       this.doOrUndoWrappingContentMutations(isWrapped);
@@ -357,6 +366,13 @@ export class FlexWrapDetectorElement extends HTMLElement {
     }
 
     this.endMutatingInternally();
+  }
+
+  addEventListener(...args: Parameters<HTMLElement["addEventListener"]>) {
+    if (args[0] === "set-wrapped-content") {
+      this.hasListenersForWrappedContent = true;
+    }
+    super.addEventListener(...args);
   }
 
   doOrUndoWrappingContentMutations(isWrapped: boolean) {
@@ -414,7 +430,7 @@ const setStyleAndAttrDefaultsForInvisible = (el: HTMLElement) => {
   // todo - consider if this is needed, and are there any other modifications
   // that might be needed to make to invisible copies
   el.querySelectorAll("*").forEach((el) => {
-    el.setAttribute("id", `${el.getAttribute("id") || ""}-invisible`);
+    el.removeAttribute("id");
   });
 };
 
