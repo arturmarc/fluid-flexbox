@@ -22,12 +22,18 @@ Install the package using npm or any other package manager
 npm install fluid-flexbox
 ```
 
+then import it like this
+
+```js
+import "fluid-flexbox/flex-wrap-detector";
+```
+
 or
 
 use a cdn
 
 ```html
-<script src="https://unpkg.com/fluid-flexbox"></script>
+<script src="https://unpkg.com/fluid-flexbox/flex-wrap-detector.cjs.js"></script>
 ```
 
 ## Basic usage

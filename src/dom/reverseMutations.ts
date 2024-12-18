@@ -11,9 +11,13 @@ export function reverseMutations(mutations: MutationRecord[]) {
         revertCharacterDataMutation(mutation);
         break;
       default:
-        const exhaustiveCheck: never = mutation.type;
+        exhaustiveCheck(mutation.type);
     }
   }
+}
+
+function exhaustiveCheck(x: never): never {
+  throw new Error("Unexpected case: " + x);
 }
 
 export function startRecordingMutations(targetNode: HTMLElement) {

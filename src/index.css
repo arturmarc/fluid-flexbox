@@ -75,6 +75,10 @@
 .link-example {
   @apply min-w-0 flex-1 basis-1/3 px-4 py-2 text-center text-secondary-foreground underline hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground;
 }
+
+.button-example-secondary {
+  @apply inline-flex h-10 items-center justify-center whitespace-nowrap rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground ring-offset-background transition-colors hover:bg-secondary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+}
 .input-example {
   @apply h-9 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring md:text-sm;
 }

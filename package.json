@@ -1,7 +1,7 @@
 {
   "name": "fluid-flexbox",
   "private": false,
-  "version": "0.1",
+  "version": "0.1.0",
   "type": "module",
   "repository": "git@github.com:arturmarc/fluid-flexbox.git",
   "description": "A \"flex-wrap on steroids\" component and custom element that detects when it's flex children no longer fit in a single row.",
@@ -26,7 +26,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc --project tsconfig.build.json && vite build",
+    "build": "vite build && tsc --project tsconfig.build.json",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -38,17 +38,17 @@
   ],
   "main": "./dist/fluid-flexbox.cjs.js",
   "module": "./dist/fluid-flexbox.es.js",
-  "types": "./dist/types/index.d.ts",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/fluid-flexbox.es.js",
-      "require": "./dist/fluid-flexbox.cjs.js",
-      "types": "./dist/types/index.d.ts"
+      "require": "./dist/fluid-flexbox.cjs.js"
     },
     "./flex-wrap-detector": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/flex-wrap-detector.es.js",
-      "require": "./dist/flex-wrap-detector.cjs.js",
-      "types": "./dist/types/index.d.ts"
+      "require": "./dist/flex-wrap-detector.cjs.js"
     }
   },
   "peerDependencies": {
@@ -59,31 +59,32 @@
     "use-resize-observer": "^9.1.0"
   },
   "devDependencies": {
-    "@radix-ui/react-dropdown-menu": "^2.1.2",
-    "@radix-ui/react-select": "^2.1.2",
-    "@radix-ui/react-slot": "^1.1.0",
-    "@types/node": "^22.7.7",
-    "@types/react": "^18.3.11",
-    "@types/react-dom": "^18.3.1",
-    "@typescript-eslint/eslint-plugin": "^8.10.0",
-    "@typescript-eslint/parser": "^8.10.0",
-    "@vitejs/plugin-react-swc": "^3.7.1",
+    "@radix-ui/react-dropdown-menu": "^2.1.4",
+    "@radix-ui/react-select": "^2.1.4",
+    "@radix-ui/react-slot": "^1.1.1",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "@typescript-eslint/eslint-plugin": "^8.18.1",
+    "@typescript-eslint/parser": "^8.18.1",
+    "@vitejs/plugin-react-swc": "^3.7.2",
     "autoprefixer": "^10.4.20",
-    "class-variance-authority": "^0.7.0",
+    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "eslint": "^9.13.0",
-    "eslint-plugin-react": "^7.37.1",
-    "eslint-plugin-react-hooks": "^5.0.0",
-    "eslint-plugin-react-refresh": "^0.4.12",
-    "lucide-react": "^0.453.0",
-    "postcss": "^8.4.47",
-    "prettier-plugin-tailwindcss": "^0.6.8",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "tailwind-merge": "^2.5.4",
-    "tailwindcss": "^3.4.14",
+    "eslint": "^9.17.0",
+    "eslint-plugin-react": "^7.37.2",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.16",
+    "lucide-react": "^0.468.0",
+    "postcss": "^8.4.49",
+    "prettier-plugin-tailwindcss": "^0.6.9",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "rollup-preserve-directives": "^1.1.3",
+    "tailwind-merge": "^2.5.5",
+    "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
-    "typescript": "^5.6.3",
-    "vite": "^5.4.9"
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3"
   }
 }

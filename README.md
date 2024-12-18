@@ -42,6 +42,12 @@ Just install the package using npm or any other package manager:
 npm install fluid-flexbox
 ```
 
+and import
+
+```js
+import { FluidFlexBox } from "fluid-flexbox";
+```
+
 ## Basic usage
 
 Use the `wrappedClass` prop to add a css class when flex content is wrapped (no longer fits in a single row)
