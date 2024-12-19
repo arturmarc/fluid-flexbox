@@ -92,7 +92,7 @@ Not just styling, but also content can be easily adapted using render prop:
 </FluidFlexbox>
 ```
 
-, or using the `useFluidFlexboxWrapped` hook:
+or using the `useFluidFlexboxWrapped` hook:
 
 ```jsx
 import { FluidFlexbox, useFluidFlexboxWrapped } from "fluid-flexbox";

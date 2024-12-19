@@ -33,7 +33,7 @@ or
 use a cdn
 
 ```html
-<script src="https://unpkg.com/fluid-flexbox/flex-wrap-detector.cjs.js"></script>
+<script src="https://unpkg.com/fluid-flexbox@latest/dist/flex-wrap-detector.cjs.js"></script>
 ```
 
 ## Basic usage
