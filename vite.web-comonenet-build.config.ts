@@ -8,7 +8,7 @@ export default defineConfig({
       entry: [path.resolve(__dirname, "src/dom/FlexWrapDetectorElement.ts")],
       formats: ["umd"],
       name: "FlexWrapDetector",
-      fileName: "flex-wrap-detector",
+      fileName: () => "flex-wrap-detector.umd.js",
     },
     minify: false,
     outDir: "dist/web",
