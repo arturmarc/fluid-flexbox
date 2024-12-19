@@ -28,12 +28,10 @@ then import it like this
 import "fluid-flexbox/flex-wrap-detector";
 ```
 
-or
-
-use a cdn
+or use a cdn
 
 ```html
-<script src="https://unpkg.com/fluid-flexbox@latest/dist/flex-wrap-detector.cjs.js"></script>
+<script src="https://unpkg.com/fluid-flexbox@latest/dist/web/flex-wrap-detector.umd.cjs"></script>
 ```
 
 ## Basic usage

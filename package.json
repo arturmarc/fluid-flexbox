@@ -1,7 +1,7 @@
 {
   "name": "fluid-flexbox",
   "private": false,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "repository": {
     "type": "git",
@@ -30,7 +30,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build && tsc --project tsconfig.build.json",
+    "build": "vite build && tsc --project tsconfig.build.json && vite build --config vite.web-comonenet-build.config.ts",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
