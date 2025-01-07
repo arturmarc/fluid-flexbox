@@ -24,13 +24,15 @@ and ...
 
 Can be used with any js framework or as a standalone custom element: `<flex-wrap-detector>`.
 
+[see full documentation](./flex-wrap-detector/README.md)
+
 - Uses same technique as the react component, but without react.
 - Faster and lighter than the react component, but more cumbersome to use when adapting content.
 - can be difficult to use when working with dynamically changing content
 
-Full documentation: https://github.com/arturmarc/fluid-flexbox/blob/main/README-DETECTOR.md
+<br><br>
 
-## `<FluidFlexbox />`
+## `<FluidFlexbox />` - react component
 
 ### Checkout the live demo:
 
