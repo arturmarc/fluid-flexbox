@@ -32,17 +32,17 @@ import { InfiniteLoop } from "./examples/InfiniteLoop";
 import { NestedExample } from "./examples/NestedExample";
 import { OrderAndReverse } from "./examples/OrderAndReverse";
 import { SingleChildExample } from "./examples/SingleChildExample";
+import { SmallerHeight } from "./examples/SmallerHeight";
 import adaptingContentMutatingHtml from "./html-examples/adapting-content-mutating.html?raw";
 import adaptingContentHtml from "./html-examples/adapting-content.html?raw";
 import basicExampleHtml from "./html-examples/basic-usage.html?raw";
-import twoLevelsNestingHtml from "./html-examples/two-levels-nesting.html?raw";
 import conditionallyNestedHtml from "./html-examples/conditionally-nested.html?raw";
 import deepNestingHtml from "./html-examples/deep-nesting.html?raw";
-import singleChildHtml from "./html-examples/single-child.html?raw";
-import holyGrailHtml from "./html-examples/holy-grail.html?raw";
 import dynamicContentHtml from "./html-examples/dynamic-content.html?raw";
+import holyGrailHtml from "./html-examples/holy-grail.html?raw";
+import singleChildHtml from "./html-examples/single-child.html?raw";
+import twoLevelsNestingHtml from "./html-examples/two-levels-nesting.html?raw";
 import { Resizer } from "./Resizer";
-import { SmallerHeight } from "./examples/SmallerHeight";
 
 export function ExampleSelector() {
   const [reactExample, setReactExample] = useState("Basic Usage");
@@ -144,7 +144,7 @@ export function ExampleSelector() {
   }, [htmlExample]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-1 flex-col gap-4">
       <div className="flex py-2">
         <DropdownMenu>
           <DropdownMenuTrigger>

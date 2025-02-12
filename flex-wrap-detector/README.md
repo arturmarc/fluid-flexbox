@@ -31,7 +31,10 @@ import "fluid-flexbox/flex-wrap-detector";
 or use a cdn
 
 ```html
-<script src="https://unpkg.com/fluid-flexbox@latest/dist/web/flex-wrap-detector.umd.js"></script>
+<script
+  defer
+  src="https://unpkg.com/fluid-flexbox@latest/dist/web/flex-wrap-detector.umd.js"
+></script>
 ```
 
 ## Basic usage

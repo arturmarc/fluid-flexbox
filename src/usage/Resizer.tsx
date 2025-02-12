@@ -1,6 +1,6 @@
 import { ArrowUpIcon } from "lucide-react";
 
-export function Resizer({ children }: { children?: JSX.Element }) {
+export function Resizer({ children }: { children?: React.ReactNode }) {
   return (
     <div className="w-fit">
       <div className="w-96 resize overflow-hidden rounded-xl border-2 border-solid border-white p-4">
