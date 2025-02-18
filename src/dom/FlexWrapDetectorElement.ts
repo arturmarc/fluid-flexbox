@@ -253,7 +253,9 @@ export class FlexWrapDetectorElement extends HTMLElement {
     this.resizeObserver?.disconnect();
 
     this.resizeObserver = new ResizeObserver(() => {
-      this.checkIfWrappingAndApply();
+      requestAnimationFrame(() => {
+        this.checkIfWrappingAndApply();
+      });
     });
 
     this.resizeObserver.observe(this.invisibleNonWrappingEl);
